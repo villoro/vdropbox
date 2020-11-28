@@ -82,6 +82,15 @@ class Vdropbox:
 
         return sorted([x.name for x in self.dbx.files_list_folder(folder).entries])
 
+    def delete(self, uri):
+        """ Delete a file/folder from dropbox """
+
+        if not uri.startswith("/"):
+            uri = "/" + uri
+
+        self.dbx.files_delete(uri)
+        self.log.info(f"File '{uri}' deleted dropbox")
+
     def _raw_read(self, filename):
         """ Auxiliar function for reading from dropbox """
 
