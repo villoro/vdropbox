@@ -148,7 +148,6 @@ class Vdropbox:
             Read a yaml from dropbox as an ordered dict
 
             Args:
-                dbx:        dropbox connector
                 filename:   name of the yaml file
         """
 
@@ -162,7 +161,6 @@ class Vdropbox:
             Uploads a dict/ordered dict as yaml in dropbox.
 
             Args:
-                dbx:        dropbox connector
                 data:       dict or dict-like info
                 filename:   name of the yaml file
         """
@@ -174,5 +172,37 @@ class Vdropbox:
             stream.seek(0)
 
             self.dbx.files_upload(stream.read().encode(), filename, mode=WriteMode.overwrite)
+
+        self.log.info(f"File '{filename}' exported to dropbox")
+
+    def read_parquet(self, filename):
+        """
+            Read a parquet from dropbox as a pandas dataframe
+
+            Args:
+                filename:   name of the parquet file
+        """
+
+        content = self._raw_read(filename)
+
+        with io.BytesIO(content) as stream:
+            return pd.read_parquet(stream)
+
+    def write_parquet(self, df, filename):
+        """
+            Write a parquet to dropbox from a pandas dataframe.
+
+            Args:
+                df:         pandas dataframe
+                filename:   name of the yaml file
+        """
+
+        filename = self._check_path(filename)
+
+        with io.BytesIO() as stream:
+            df.to_parquet(stream)
+            stream.seek(0)
+
+            self.dbx.files_upload(stream.getvalue(), filename, mode=WriteMode.overwrite)
 
         self.log.info(f"File '{filename}' exported to dropbox")
