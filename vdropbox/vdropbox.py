@@ -175,32 +175,77 @@ class Vdropbox:
 
         self.log.info(f"File '{filename}' exported to dropbox")
 
-    def read_parquet(self, filename):
+    def read_parquet(self, filename, **kwa):
         """
             Read a parquet from dropbox as a pandas dataframe
 
             Args:
                 filename:   name of the parquet file
+                **kwa:      keyworded arguments for the pd.read_parquet inner function
         """
 
         content = self._raw_read(filename)
 
         with io.BytesIO(content) as stream:
-            return pd.read_parquet(stream)
+            return pd.read_parquet(stream, **kwa)
 
-    def write_parquet(self, df, filename):
+    def write_parquet(self, df, filename, **kwa):
         """
             Write a parquet to dropbox from a pandas dataframe.
 
             Args:
                 df:         pandas dataframe
                 filename:   name of the yaml file
+                **kwa:      keyworded arguments for the pd.to_parquet inner function
         """
 
         filename = self._check_path(filename)
 
         with io.BytesIO() as stream:
-            df.to_parquet(stream)
+            df.to_parquet(stream, **kwa)
+            stream.seek(0)
+
+            self.dbx.files_upload(stream.getvalue(), filename, mode=WriteMode.overwrite)
+
+        self.log.info(f"File '{filename}' exported to dropbox")
+
+    def read_excel(self, filename, sheet_names=None, **kwa):
+        """
+            Read an excel from dropbox as a pandas dataframe
+
+            Args:
+                filename:       name of the excel file
+                sheet_names:    names of the sheets to read (if None read the only sheet)
+                **kwa:          keyworded arguments for the pd.read_excel inner function
+        """
+
+        content = self._raw_read(filename)
+
+        # Read one dataframe
+        if sheet_names is None:
+            with io.BytesIO(content) as stream:
+                return pd.read_excel(stream, **kwa)
+
+        # Read multiple dataframes
+        with io.BytesIO(content) as stream:
+            return {x: pd.read_excel(stream, sheet_name=x, **kwa) for x in sheet_names}
+
+    def write_excel(self, df, filename, **kwa):
+        """
+            Write an excel to dropbox from a pandas dataframe
+
+            Args:
+                filename:   name of the excel file
+                **kwa:      keyworded arguments for the df.to_excel inner function
+        """
+
+        filename = self._check_path(filename)
+
+        with io.BytesIO() as stream:
+            writer = pd.ExcelWriter(stream)
+            df.to_excel(writer, **kwa)
+
+            writer.save()
             stream.seek(0)
 
             self.dbx.files_upload(stream.getvalue(), filename, mode=WriteMode.overwrite)
