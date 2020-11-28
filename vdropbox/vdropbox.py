@@ -31,7 +31,6 @@ class Vdropbox:
         self.dbx = dropbox.Dropbox(token)
         self.log = log
 
-
     def _check_one_file(self, path, filename):
         """
             Internal function to check if a file exists in dropbox
@@ -48,32 +47,32 @@ class Vdropbox:
         return False
 
     def file_exists(self, uri):
-    """
-        Check if a file exists in dropbox
+        """
+            Check if a file exists in dropbox
 
-        Args:
-            uri:    file uri
-    """
+            Args:
+                uri:    file uri
+        """
 
-    # Check all folders before the actual file
-    data = uri.split("/")
-    for i, filename in enumerate(data):
-        path = "/".join(data[:i])
+        # Check all folders before the actual file
+        data = uri.split("/")
+        for i, filename in enumerate(data):
+            path = "/".join(data[:i])
 
-        # Skip if filename is empty (happens when uri starts with '/')
-        if not filename:
-            continue
+            # Skip if filename is empty (happens when uri starts with '/')
+            if not filename:
+                continue
 
-        # All non empty path must start with '/'
-        if path and not path.startswith("/"):
-            path = "/" + path
+            # All non empty path must start with '/'
+            if path and not path.startswith("/"):
+                path = "/" + path
 
-        # If one file or folder don't exist return False
-        if not self._check_one_file(path, filename):
-            return False
+            # If one file or folder don't exist return False
+            if not self._check_one_file(path, filename):
+                return False
 
-    # If all exists return true
-    return True
+        # If all exists return true
+        return True
 
     def write_file(self, text, filename):
         """
