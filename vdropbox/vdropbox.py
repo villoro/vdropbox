@@ -50,6 +50,14 @@ class Vdropbox:
 
         return False
 
+    def _check_path(self, path):
+        """ Check that a path starts with '/'"""
+
+        if not path.startswith("/"):
+            path = "/" + path
+
+        return path
+
     def file_exists(self, uri):
         """
             Check if a file exists in dropbox
@@ -81,25 +89,22 @@ class Vdropbox:
     def ls(self, folder):
         """ List entries in a folder """
 
-        if not folder.startswith("/"):
-            folder = "/" + folder
+        folder = self._check_path(folder)
 
         return sorted([x.name for x in self.dbx.files_list_folder(folder).entries])
 
-    def delete(self, uri):
+    def delete(self, filename):
         """ Delete a file/folder from dropbox """
 
-        if not uri.startswith("/"):
-            uri = "/" + uri
+        filename = self._check_path(filename)
 
-        self.dbx.files_delete(uri)
-        self.log.info(f"File '{uri}' deleted dropbox")
+        self.dbx.files_delete(filename)
+        self.log.info(f"File '{filename}' deleted dropbox")
 
     def _raw_read(self, filename):
         """ Auxiliar function for reading from dropbox """
 
-        if not filename.startswith("/"):
-            filename = "/" + filename
+        filename = self._check_path(filename)
 
         _, res = self.dbx.files_download(filename)
         res.raise_for_status()
@@ -161,6 +166,8 @@ class Vdropbox:
                 data:       dict or dict-like info
                 filename:   name of the yaml file
         """
+
+        filename = self._check_path(filename)
 
         with io.StringIO() as stream:
             yaml.dump(data, stream, default_flow_style=False, indent=4)
