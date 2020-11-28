@@ -2,6 +2,8 @@ import io
 
 import dropbox
 
+from dropbox.files import WriteMode
+
 
 class DummyLog:
     """ Dummy log that prints """
@@ -130,6 +132,38 @@ class Vdropbox:
             stream.seek(0)
 
             # Write a text file
-            self.dbx.files_upload(stream.read(), filename, mode=dropbox.files.WriteMode.overwrite)
+            self.dbx.files_upload(stream.read(), filename, mode=WriteMode.overwrite)
+
+        self.log.info(f"File '{filename}' exported to dropbox")
+
+    def read_yaml(self, filename):
+        """
+            Read a yaml from dropbox as an ordered dict
+
+            Args:
+                dbx:        dropbox connector
+                filename:   name of the yaml file
+        """
+
+        content = self._raw_read(filename)
+
+        with io.BytesIO(content) as stream:
+            return yaml.safe_load(stream)
+
+    def write_yaml(self, data, filename):
+        """
+            Uploads a dict/ordered dict as yaml in dropbox.
+
+            Args:
+                dbx:        dropbox connector
+                data:       dict or dict-like info
+                filename:   name of the yaml file
+        """
+
+        with io.StringIO() as stream:
+            yaml.dump(data, stream, default_flow_style=False, indent=4)
+            stream.seek(0)
+
+            self.dbx.files_upload(stream.read().encode(), filename, mode=WriteMode.overwrite)
 
         self.log.info(f"File '{filename}' exported to dropbox")
