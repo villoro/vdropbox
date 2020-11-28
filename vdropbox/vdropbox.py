@@ -74,22 +74,23 @@ class Vdropbox:
         # If all exists return true
         return True
 
-    def write_file(self, text, filename):
-        """
-            Uploads a text file in dropbox.
+    def ls(self, folder):
+        """ List entries in a folder """
 
-            Args:
-                text:       text to write
-                filename:   name of the file
-        """
+        if not folder.startswith("/"):
+            folder = "/" + folder
 
-        with io.BytesIO(text.encode()) as stream:
-            stream.seek(0)
+        return sorted([x.name for x in self.dbx.files_list_folder(folder).entries])
 
-            # Write a text file
-            self.dbx.files_upload(stream.read(), filename, mode=dropbox.files.WriteMode.overwrite)
+    def _raw_read(self, filename):
+        """ Auxiliar function for reading from dropbox """
 
-        self.log.info(f"File '{filename}' exported to dropbox")
+        if not filename.startswith("/"):
+            filename = "/" + filename
+
+        _, res = self.dbx.files_download(filename)
+        res.raise_for_status()
+        return res.content
 
     def read_file(self, filename):
         """
@@ -99,9 +100,27 @@ class Vdropbox:
                 filename:   name of the file
         """
 
-        _, res = self.dbx.files_download(filename)
+        content = self._raw_read(filename)
 
-        res.raise_for_status()
+        with io.BytesIO(content) as stream:
+            return stream.read().decode()
 
-        with io.BytesIO(res.content) as stream:
-            txt = stream.read().decode()
+    def write_file(self, text, filename):
+        """
+            Uploads a text file in dropbox.
+
+            Args:
+                text:       text to write
+                filename:   name of the file
+        """
+
+        if not filename.startswith("/"):
+            filename = "/" + filename
+
+        with io.BytesIO(text.encode()) as stream:
+            stream.seek(0)
+
+            # Write a text file
+            self.dbx.files_upload(stream.read(), filename, mode=dropbox.files.WriteMode.overwrite)
+
+        self.log.info(f"File '{filename}' exported to dropbox")
