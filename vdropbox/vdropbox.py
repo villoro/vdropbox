@@ -9,6 +9,9 @@ class DummyLog:
     def info(self, msg):
         print(msg)
 
+    def warning(self, msg):
+        print(msg)
+
     def error(self, msg):
         print(msg)
 
@@ -17,11 +20,62 @@ class Vdropbox:
     """Vdropbox object"""
 
     def __init__(self, token, log=DummyLog()):
+        """
+            Creates the vdropbox object
+
+            Args:
+                token:  for connection to dropbox
+                log:    log object. The default one only prints
+        """
 
         self.dbx = dropbox.Dropbox(token)
         self.log = log
 
-    def write_textfile(text, filename):
+
+    def _check_one_file(self, path, filename):
+        """
+            Internal function to check if a file exists in dropbox
+
+            Args:
+                path:       folder of the file
+                filename:   name of the file
+        """
+
+        for match in self.dbx.files_search(path, filename).matches:
+            if filename == match.metadata.name:
+                return True
+
+        return False
+
+    def file_exists(self, uri):
+    """
+        Check if a file exists in dropbox
+
+        Args:
+            uri:    file uri
+    """
+
+    # Check all folders before the actual file
+    data = uri.split("/")
+    for i, filename in enumerate(data):
+        path = "/".join(data[:i])
+
+        # Skip if filename is empty (happens when uri starts with '/')
+        if not filename:
+            continue
+
+        # All non empty path must start with '/'
+        if path and not path.startswith("/"):
+            path = "/" + path
+
+        # If one file or folder don't exist return False
+        if not self._check_one_file(path, filename):
+            return False
+
+    # If all exists return true
+    return True
+
+    def write_file(self, text, filename):
         """
             Uploads a text file in dropbox.
 
@@ -38,7 +92,7 @@ class Vdropbox:
 
         self.log.info(f"File '{filename}' exported to dropbox")
 
-    def read_textfile(filename):
+    def read_file(self, filename):
         """
             Reads a text file in dropbox.
 
