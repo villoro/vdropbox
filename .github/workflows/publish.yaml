@@ -1,10 +1,10 @@
-name: Integration tests
+name: Publish package
 env:
   PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
 
 on:
   push:
-    # branches: [master]
+    branches: [master]
 
 jobs:
   build:
