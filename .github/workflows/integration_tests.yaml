@@ -24,6 +24,10 @@ jobs:
         pip install poetry
         poetry install --no-dev
 
+    - name: Build
+      run: |
+        poetry build
+
     - name: Publish
       run: |
         poetry publish -u villoro -p $PYPI_PASSWORD
