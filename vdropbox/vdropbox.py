@@ -189,6 +189,20 @@ class Vdropbox:
         with io.BytesIO(content) as stream:
             return pd.read_parquet(stream, **kwa)
 
+    def read_csv(self, filename, **kwa):
+        """
+            Read a csv from dropbox as a pandas dataframe
+
+            Args:
+                filename:   name of the csv file
+                **kwa:      keyworded arguments for the pd.read_csv inner function
+        """
+
+        content = self._raw_read(filename)
+
+        with io.BytesIO(content) as stream:
+            return pd.read_csv(stream, **kwa)
+
     def write_parquet(self, df, filename, **kwa):
         """
             Write a parquet to dropbox from a pandas dataframe.
