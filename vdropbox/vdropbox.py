@@ -1,5 +1,7 @@
 import io
 
+from zipfile import ZipFile
+
 import dropbox
 import oyaml as yaml
 import pandas as pd
@@ -265,3 +267,16 @@ class Vdropbox:
             self.dbx.files_upload(stream.getvalue(), filename, mode=WriteMode.overwrite)
 
         self.log.info(f"File '{filename}' exported to dropbox")
+
+    def read_zip(self, filename):
+        """
+            Reads a zip file in dropbox.
+
+            Args:
+                filename:   name of the file
+        """
+
+        content = self._raw_read(filename)
+
+        with io.BytesIO(content) as stream:
+            return ZipFile(stream)
