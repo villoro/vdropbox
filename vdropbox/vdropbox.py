@@ -268,15 +268,23 @@ class Vdropbox:
 
         self.log.info(f"File '{filename}' exported to dropbox")
 
-    def read_zip(self, filename):
+    def read_zip(self, zipfile, file=None, **kwa):
         """
             Reads a zip file in dropbox.
 
             Args:
-                filename:   name of the file
+                zipfile:    name of the file
+                file:       file to read inside the zip. If None read the first one
+                **kwa:      keyworded arguments for the zip.read function
         """
 
         content = self._raw_read(filename)
 
         with io.BytesIO(content) as stream:
-            return ZipFile(stream)
+            data = ZipFile(stream)
+
+            # Get the first file
+            if file is None:
+                file = data.namelist()[0]
+
+            return data.read(file, **kwa)
