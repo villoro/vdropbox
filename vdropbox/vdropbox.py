@@ -125,7 +125,7 @@ class Vdropbox:
         with io.BytesIO(content) as stream:
             return stream.read().decode()
 
-    def write_file(self, text, filename):
+    def write_file(self, text, filename, as_binary=False):
         """
             Uploads a text file in dropbox.
 
@@ -137,7 +137,10 @@ class Vdropbox:
         if not filename.startswith("/"):
             filename = "/" + filename
 
-        with io.BytesIO(text.encode()) as stream:
+        if not as_binary:
+            text = text.encode()
+
+        with io.BytesIO(text) as stream:
             stream.seek(0)
 
             # Write a text file
@@ -278,7 +281,7 @@ class Vdropbox:
                 **kwa:      keyworded arguments for the zip.read function
         """
 
-        content = self._raw_read(filename)
+        content = self._raw_read(zipfile)
 
         with io.BytesIO(content) as stream:
             data = ZipFile(stream)
