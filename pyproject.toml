@@ -3,7 +3,7 @@ line-length = 100
 
 [tool.poetry]
 name = "vdropbox"
-version = "0.2.3"
+version = "0.2.4"
 description = "Utilities to read/write python objects to/from dropbox"
 authors = ["Arnau Villoro <arnau@villoro.com>"]
 maintainers = ["Arnau Villoro <arnau@villoro.com>"]
