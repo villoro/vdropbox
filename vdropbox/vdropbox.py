@@ -98,10 +98,11 @@ class Vdropbox:
     def delete(self, filename):
         """ Delete a file/folder from dropbox """
 
+        self.log.info(f"Deleting '{filename}' from dropbox")
+
         filename = self._check_path(filename)
 
         self.dbx.files_delete(filename)
-        self.log.info(f"File '{filename}' deleted dropbox")
 
     def _raw_read(self, filename):
         """ Auxiliar function for reading from dropbox """
@@ -134,6 +135,8 @@ class Vdropbox:
                 filename:   name of the file
         """
 
+        self.log.info(f"Exporting '{filename}' to dropbox")
+
         if not filename.startswith("/"):
             filename = "/" + filename
 
@@ -145,8 +148,6 @@ class Vdropbox:
 
             # Write a text file
             self.dbx.files_upload(stream.read(), filename, mode=WriteMode.overwrite)
-
-        self.log.info(f"File '{filename}' exported to dropbox")
 
     def read_yaml(self, filename):
         """
@@ -170,6 +171,8 @@ class Vdropbox:
                 filename:   name of the yaml file
         """
 
+        self.log.info(f"Exporting '{filename}' to dropbox")
+
         filename = self._check_path(filename)
 
         with io.StringIO() as stream:
@@ -177,8 +180,6 @@ class Vdropbox:
             stream.seek(0)
 
             self.dbx.files_upload(stream.read().encode(), filename, mode=WriteMode.overwrite)
-
-        self.log.info(f"File '{filename}' exported to dropbox")
 
     def read_parquet(self, filename, **kwa):
         """
@@ -218,6 +219,8 @@ class Vdropbox:
                 **kwa:      keyworded arguments for the pd.to_parquet inner function
         """
 
+        self.log.info(f"Exporting '{filename}' to dropbox")
+
         filename = self._check_path(filename)
 
         with io.BytesIO() as stream:
@@ -225,8 +228,6 @@ class Vdropbox:
             stream.seek(0)
 
             self.dbx.files_upload(stream.getvalue(), filename, mode=WriteMode.overwrite)
-
-        self.log.info(f"File '{filename}' exported to dropbox")
 
     def read_excel(self, filename, sheet_names=None, **kwa):
         """
@@ -258,6 +259,8 @@ class Vdropbox:
                 **kwa:      keyworded arguments for the df.to_excel inner function
         """
 
+        self.log.info(f"Exporting '{filename}' to dropbox")
+
         filename = self._check_path(filename)
 
         with io.BytesIO() as stream:
@@ -268,8 +271,6 @@ class Vdropbox:
             stream.seek(0)
 
             self.dbx.files_upload(stream.getvalue(), filename, mode=WriteMode.overwrite)
-
-        self.log.info(f"File '{filename}' exported to dropbox")
 
     def read_zip(self, zipfile, file=None, **kwa):
         """
