@@ -95,6 +95,14 @@ class Vdropbox:
 
         return sorted([x.name for x in self.dbx.files_list_folder(folder).entries])
 
+    def mv(self, origin, destination):
+        """ Move a file by copying and deleting """
+
+        self.log.debug(f"Moving file '{origin}' to '{destination}'")
+
+        self.dbx.files_copy(origin, destination)
+        self.dbx.files_delete(origin)
+
     def delete(self, filename):
         """ Delete a file/folder from dropbox """
 
