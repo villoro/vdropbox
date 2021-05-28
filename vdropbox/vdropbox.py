@@ -121,7 +121,7 @@ class Vdropbox:
         res.raise_for_status()
         return res.content
 
-    def read_file(self, filename):
+    def read_file(self, filename, as_binary=False):
         """
             Reads a text file in dropbox.
 
@@ -132,7 +132,12 @@ class Vdropbox:
         content = self._raw_read(filename)
 
         with io.BytesIO(content) as stream:
-            return stream.read().decode()
+            out = stream.read()
+
+        if not as_binary:
+            out = out.decode()
+
+        return out
 
     def write_file(self, text, filename, as_binary=False):
         """
