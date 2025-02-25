@@ -47,5 +47,5 @@ dist/
 
 
 # --------------------- PROJECT EXCLUSIONS ------------------------------------
-# Playground notebooks
-*/test.ipynb
+# Jupyter notebooks
+**.ipynb
