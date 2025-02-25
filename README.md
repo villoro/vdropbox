@@ -1,33 +1,54 @@
 # vdropbox
 
-Utilities to read/write objects to/from dropbox
+Utilities to read/write objects to/from Dropbox.
 
-## Usage
+## 🚀 Usage
 
-The first thing to do is to declare the `Vdropbox` object using a token with:
+The first step is to declare the `Vdropbox` object using a token:
 
 ```python
 from vdropbox import Vdropbox
 vdp = Vdropbox("my_secret")
 ```
 
-Unlike the official `dropbox` python package it is not needed to have a leading `/` in all names.
+Unlike the official `dropbox` Python package, it is **not required** to have a leading `/` in all file names.
 
-### Basic functions
+> [!NOTE]
+> Ensure your Dropbox token has the necessary permissions.
+
+### 🛠 Custom Logger
+
+You can pass a custom logger to `Vdropbox` if you want to control logging behavior:
+
+```python
+import logging
+from vdropbox import Vdropbox
+
+logger = logging.getLogger("my_logger")
+vdp = Vdropbox("my_secret", logger=logger)
+```
+
+> [!TIP]
+> Using a custom logger allows you to integrate `Vdropbox` logs into your existing logging setup.
+
+## 📁 Basic Functions
 
 ```python
 # Check if a file exists
 vdp.file_exists("my_file.txt")
 vdp.file_exists("folder/my_file.txt")
 
-# Check contents of a foler
+# Check contents of a folder
 vdp.ls("my_folder")
 
 # Delete a file
 vdp.delete("my_file.txt")
 ```
 
-### Reading and writting text files
+> [!WARNING]
+> Deleting a file is irreversible!
+
+## 📝 Reading and Writing Text Files
 
 ```python
 data = "Hello world"
@@ -39,62 +60,69 @@ vdp.write_file(data, "my_file.txt")
 vdp.read_file("my_file.txt")
 ```
 
-> Internally it is using `oyaml` so all yamls are ordered.
+> [!NOTE]
+> The default encoding is UTF-8.
 
-
-### Reading and writting yamls
+## 📜 Reading and Writing YAML Files
 
 ```python
 data = {"a": 4, "b": 2}
 
-# Write a yaml file
+# Write a YAML file
 vdp.write_yaml(data, "my_file.yaml")
 
-# Read a yaml file
+# Read a YAML file
 vdp.read_yaml("my_file.yaml")
 ```
 
-> Internally it is using `oyaml` so all yamls are ordered.
+> [!TIP]
+> Internally, it uses `oyaml`, so all YAML files maintain their order.
 
-### Reading and writting excels with pandas
+## 📊 Reading and Writing Excel Files with Pandas
 
 ```python
 import pandas as pd
-# Dummy dataframe
+# Create a dummy DataFrame
 df = pd.DataFrame(list("ABCDE"), columns=["col"])
 
-# Write an excel file
+# Write an Excel file
 vdp.write_excel(df, "df.xlsx")
 
-# Read a parquet file
-vdp.read_excel("df.parquet")
+# Read an Excel file
+df = vdp.read_excel("df.xlsx")
 ```
 
-It is possible to pass keyworded arguments to the internal `pd.read_excel` or `df.to_excel` function.
-For example:
+> [!TIP]
+> You can pass keyword arguments to `pd.read_excel` or `df.to_excel`.
+
+Example:
 
 ```python
 vdp.write_excel(df, "test.xlsx", index=False)
 ```
 
-### Reading and writting parquets with pandas
+## 🔹 Reading and Writing Parquet Files with Pandas
 
 ```python
 import pandas as pd
-# Dummy dataframe
+# Create a dummy DataFrame
 df = pd.DataFrame(list("ABCDE"), columns=["col"])
 
-# Write a parquet file
+# Write a Parquet file
 vdp.write_parquet(df, "df.parquet")
 
-# Read a parquet file
-vdp.read_parquet("df.parquet")
+# Read a Parquet file
+df = vdp.read_parquet("df.parquet")
 ```
 
-It is possible to pass keyworded arguments to the internal `pd.read_parquet` or `df.to_parquet` function.
+> [!TIP]
+> You can pass keyword arguments to `pd.read_parquet` or `df.to_parquet`.
 
-## Authors
-* [Arnau Villoro](villoro.com)
+## 👥 Authors
 
-## License
-The content of this repository is licensed under a [MIT](https://opensource.org/licenses/MIT).
+- [Arnau Villoro](https://villoro.com)
+
+## 📜 License
+
+The content of this repository is licensed under [MIT](https://opensource.org/licenses/MIT).
+
