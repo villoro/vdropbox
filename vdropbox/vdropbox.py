@@ -23,17 +23,25 @@ class Vdropbox:
         self.dbx = dropbox.Dropbox(token)
         self.logger = logger
 
-    def _normalize_path(self, filename):
-        """Ensure Dropbox path is correctly formatted."""
-        return str(Path(filename).as_posix())
+    def _normalize_path(self, path):
+        """Ensure paths are in Unix format and start with a `/`."""
+        path = str(Path(path).as_posix())  # Convert to Unix format (`/`)
+        return f"/{path.lstrip('/')}"  # Ensure it always starts with `/`
 
     def file_exists(self, filename):
-        """Check if a file exists in Dropbox."""
+        """Check if a file exists in Dropbox with an exact path match."""
         path = self._normalize_path(filename)
-        folder, name = str(Path(path).parent), Path(path).name
+        self.logger.debug(f"Checking if {path=} exists")
 
-        for match in self.dbx.files_search(folder, name).matches:
-            if match.metadata.name == name:
+        folder, name = (str(Path(path).parent), Path(path).name)
+        folder = self._normalize_path(folder)  # Normalize folder path
+
+        self.logger.debug(f"Checking in {folder=}, {name=}")
+        search_results = self.dbx.files_search(folder, name).matches
+
+        # Check for exact path match
+        for match in search_results:
+            if match.metadata.path_lower == path.lower():
                 return True
 
         return False
@@ -41,6 +49,7 @@ class Vdropbox:
     def ls(self, folder):
         """List files in a folder."""
         path = self._normalize_path(folder)
+        self.logger.debug(f"Checking files in {path=}")
         return sorted(entry.name for entry in self.dbx.files_list_folder(path).entries)
 
     def delete(self, filename):
