@@ -1,6 +1,6 @@
 [project]
 name = "vdropbox"
-version = "1.0.1"
+version = "1.0.2"
 description = "Utilities to read/write python objects to/from dropbox"
 authors = [{ name = "Arnau Villoro", email = "arnau@villoro.com" }]
 maintainers = [{ name = "Arnau Villoro", email = "arnau@villoro.com" }]
