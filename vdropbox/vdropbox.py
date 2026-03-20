@@ -147,10 +147,11 @@ class Vdropbox:
                 return zip_file.read(file_inside)
 
     def mkdir_p(self, folder):
-        parts = Path(self._normalize_path(folder)).parts
+        self.logger.info(f"Creating {folder=} (mkdir_p)")
+        parts = Path(self._normalize_path(folder)).parts[1:]
 
         for i in range(1, len(parts) + 1):
-            subpath = "/".join(parts[:i])
+            subpath = "/" + "/".join(parts[:i])
             try:
                 self.dbx.files_create_folder_v2(subpath)
             except dropbox.exceptions.ApiError as e:
