@@ -153,5 +153,9 @@ class Vdropbox:
             subpath = "/".join(parts[:i])
             try:
                 self.dbx.files_create_folder_v2(subpath)
-            except dropbox.exceptions.ApiError:
-                pass
+            except dropbox.exceptions.ApiError as e:
+                if e.error.is_path() and e.error.get_path().is_conflict():
+                    
+                    continue# Folder already exists → OK
+                else:
+                    raise
