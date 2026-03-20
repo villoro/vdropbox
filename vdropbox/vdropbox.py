@@ -145,3 +145,16 @@ class Vdropbox:
             with ZipFile(stream) as zip_file:
                 file_inside = file_inside or zip_file.namelist()[0]
                 return zip_file.read(file_inside)
+
+    def mkdir_p(self, folder):
+        parts = Path(self._normalize_path(folder)).parts
+
+        for i in range(1, len(parts) + 1):
+            subpath = "/".join(parts[:i])
+            try:
+                self.dbx.files_create_folder_v2(subpath)
+            except dropbox.exceptions.ApiError as e:
+                if e.error.is_path() and e.error.get_path().is_conflict():
+                    continue  # Folder already exists → OK
+
+                raise
