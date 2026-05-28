@@ -49,3 +49,6 @@ dist/
 # --------------------- PROJECT EXCLUSIONS ------------------------------------
 # Jupyter notebooks
 **.ipynb
+
+# Claude local settings
+.claude/settings.local.json
