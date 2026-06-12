@@ -2,6 +2,15 @@
 
 Utilities to read/write objects to/from Dropbox.
 
+## 📦 Installation
+
+```bash
+pip install vdropbox
+
+# With pandas support (csv/excel/parquet helpers)
+pip install vdropbox[pandas]
+```
+
 ## 🚀 Usage
 
 The first step is to declare the `Vdropbox` object using a token:
@@ -31,6 +40,14 @@ vdp = Vdropbox("my_secret", logger=logger)
 > [!TIP]
 > Using a custom logger allows you to integrate `Vdropbox` logs into your existing logging setup.
 
+### 🔄 Automatic Retries
+
+Transient errors (connection drops, timeouts, Dropbox 5xx, rate limits) are retried automatically with exponential backoff. You can tune or disable it:
+
+```python
+vdp = Vdropbox("my_secret", max_retries=4)  # default; use 0 to disable
+```
+
 ## 📁 Basic Functions
 
 ```python
@@ -40,6 +57,15 @@ vdp.file_exists("folder/my_file.txt")
 
 # Check contents of a folder
 vdp.ls("my_folder")
+
+# List all files recursively (returns paths relative to the folder)
+vdp.ls("my_folder", recursive=True)
+
+# Create a folder (and missing parents)
+vdp.mkdir_p("folder/subfolder")
+
+# Move/rename a file
+vdp.move("my_file.txt", "folder/my_file.txt")
 
 # Delete a file
 vdp.delete("my_file.txt")
@@ -76,7 +102,19 @@ vdp.read_yaml("my_file.yaml")
 ```
 
 > [!TIP]
-> Internally, it uses `oyaml`, so all YAML files maintain their order.
+> YAML files are written with `sort_keys=False`, so key order is preserved.
+
+## 🧾 Reading and Writing JSON Files
+
+```python
+data = {"a": 4, "b": 2}
+
+# Write a JSON file
+vdp.write_json(data, "my_file.json")
+
+# Read a JSON file
+vdp.read_json("my_file.json")
+```
 
 ## 📊 Reading and Writing Excel Files with Pandas
 
