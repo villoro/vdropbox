@@ -33,10 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
-
-[tool.hatch.build.targets.wheel.sources]
-"src" = "vdropbox"
+packages = ["vdropbox"]
 
 [project.optional-dependencies]
 pandas = ["pandas>=2.2.3"]

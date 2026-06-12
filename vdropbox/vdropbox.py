@@ -8,6 +8,8 @@ from dropbox.files import FolderMetadata
 from dropbox.files import WriteMode
 from loguru import logger as _default_logger
 
+from vdropbox.retry import retry_on_network_errors
+
 
 def _require_pandas():
     """Import pandas lazily so it stays an optional dependency."""
@@ -23,16 +25,19 @@ def _require_pandas():
 class Vdropbox:
     """Dropbox client for handling files, structured data, and compressed archives."""
 
-    def __init__(self, token: str, logger=_default_logger):
+    def __init__(self, token: str, logger=_default_logger, max_retries: int = 4):
         """
         Initialize the Dropbox client.
 
         Args:
             token: Dropbox API token.
             logger: Custom logger instance (defaults to loguru).
+            max_retries: Retries on transient network/server errors (with
+                exponential backoff). Set to 0 to disable.
         """
         self.dbx = dropbox.Dropbox(token)
         self.logger = logger
+        self.max_retries = max_retries
 
     def _normalize_path(self, path: str) -> str:
         """Ensure paths are in Unix format and start with a `/`."""
@@ -40,6 +45,7 @@ class Vdropbox:
         parts = str(path).replace("\\", "/").split("/")
         return "/" + "/".join(p for p in parts if p)
 
+    @retry_on_network_errors
     def file_exists(self, filename: str) -> bool:
         """Check if a file or folder exists in Dropbox with an exact path match."""
         path = self._normalize_path(filename)
@@ -61,6 +67,7 @@ class Vdropbox:
             result = self.dbx.files_list_folder_continue(result.cursor)
             yield from result.entries
 
+    @retry_on_network_errors
     def ls(self, folder: str, recursive: bool = False) -> list[str]:
         """
         List files and folders in a folder.
@@ -87,12 +94,14 @@ class Vdropbox:
             out.append(full_path[len(prefix) :].lstrip("/"))
         return sorted(out)
 
+    @retry_on_network_errors
     def delete(self, filename: str):
         """Delete a file from Dropbox."""
         path = self._normalize_path(filename)
         self.logger.info(f"Deleting '{path}' from Dropbox")
         self.dbx.files_delete_v2(path)
 
+    @retry_on_network_errors
     def move(self, src: str, dest: str, overwrite: bool = True):
         """Move (rename) a file in Dropbox."""
         src, dest = self._normalize_path(src), self._normalize_path(dest)
@@ -103,6 +112,7 @@ class Vdropbox:
 
         self.dbx.files_move_v2(src, dest)
 
+    @retry_on_network_errors
     def _download(self, filename: str) -> bytes:
         """Download a file from Dropbox."""
         path = self._normalize_path(filename)
@@ -112,6 +122,7 @@ class Vdropbox:
         res.raise_for_status()
         return res.content
 
+    @retry_on_network_errors
     def _upload(self, data, filename: str, as_binary: bool = False):
         """Upload a file to Dropbox."""
         path = self._normalize_path(filename)
@@ -193,6 +204,7 @@ class Vdropbox:
                 file_inside = file_inside or zip_file.namelist()[0]
                 return zip_file.read(file_inside)
 
+    @retry_on_network_errors
     def mkdir_p(self, folder: str):
         """Create a folder (and any missing parents), like `mkdir -p`."""
         path = self._normalize_path(folder)
