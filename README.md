@@ -40,6 +40,14 @@ vdp = Vdropbox("my_secret", logger=logger)
 > [!TIP]
 > Using a custom logger allows you to integrate `Vdropbox` logs into your existing logging setup.
 
+### 🔄 Automatic Retries
+
+Transient errors (connection drops, timeouts, Dropbox 5xx, rate limits) are retried automatically with exponential backoff. You can tune or disable it:
+
+```python
+vdp = Vdropbox("my_secret", max_retries=4)  # default; use 0 to disable
+```
+
 ## 📁 Basic Functions
 
 ```python
